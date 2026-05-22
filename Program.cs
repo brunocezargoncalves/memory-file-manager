@@ -41,14 +41,54 @@ namespace MemoryFileManager
                         {
                             string fileName = Path.GetFileName(file);
 
-                            try
-                            {                                
-                                Console.WriteLine(Log($"Arquivo {fileName} organizado para {MoveFile(Path.Combine(CreateMonthDirectory(CreateYearDirectory(writingDirectory, fileName), fileName), fileName), file)}.", logFilePath));
-                            }
-                            catch (Exception ex)
+                            // Identificar se o nome do arquivo corresponde ao padrão esperado: "AAA_YYYYMMDD_HHMMSS.EXT" (exemplo: "IMG_20210927_153304.jpg")
+                            //string pattern = @"^[A-Za-z]{3}_[0-9]{8}_[0-9]{6}\.[A-Za-z]{3}$";
+                            string pattern = @"^[A-Za-z]{3}_[0-9]{8}_[0-9]{6}\.[A-Za-z0-9]+$";
+
+                            bool isValid = Regex.IsMatch(fileName, pattern);
+
+                            if (isValid)
                             {
-                                Console.WriteLine(Log(ex.Message, logFilePath));
-                            }                            
+                                try
+                                {
+                                    Console.WriteLine(Log($"Arquivo {fileName} organizado para {MoveFile(Path.Combine(CreateMonthDirectory(CreateYearDirectory(writingDirectory, fileName), fileName), fileName), file)}.", logFilePath));
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(Log(ex.Message, logFilePath));
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("O texto NÃO corresponde ao padrão esperado.");
+
+                                //string extension = Path
+                                //.GetExtension(filePath)
+                                //.ToLower();
+
+                                //if (extension == ".jpg" ||
+                                //    extension == ".jpeg" ||
+                                //    extension == ".png")
+                                //{
+                                //    string imageDate = ExtractImageDate(filePath);
+
+                                //    if (!String.IsNullOrWhiteSpace(imageDate))
+                                //        return imageDate;
+                                //}
+
+                                //if (extension == ".mp4" ||
+                                //    extension == ".3gp")
+                                //{
+                                //    string videoDate = ExtractVideoDate(filePath);
+
+                                //    if (!String.IsNullOrWhiteSpace(videoDate))
+                                //        return videoDate;
+                                //}
+
+                                //return File
+                                //    .GetCreationTime(filePath)
+                                //    .ToString("yyyyMMdd");
+                            }                                                    
                         }
                     }
 
@@ -81,7 +121,7 @@ namespace MemoryFileManager
 
                     int year = ExtractYearOrMonthFileName(dateOnlyNumbers.Length >= 8 ? dateOnlyNumbers[..8] : dateOnlyNumbers, "YEAR"); 
 
-                    if (year > 1996 && year <= 2024)
+                    if (year > 1996 && year <= 2026)
                     {
                         string yearDirectory = Path.Combine(sourceDirectory, year.ToString());
                         Directory.CreateDirectory(yearDirectory);
